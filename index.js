@@ -406,14 +406,31 @@ const removeDepotFunc = () => {
 };
 // weird view func
 const budgetFunc = () => {
- const query = `SELECT salary, 
+  const query = `SELECT salary, 
   department_name AS department
   FROM employee e
   JOIN employee_role ON e.role_id = employee_role.id
   JOIN department ON employee_role.department_id = department.id`
 
-  connection.query(query, function(err,res){
-    console.log(res)
+  connection.query(query, function (err, res) {
+    let depotArr = []
+    for (let i = 0; i < res.length; i++){
+      depotArr.includes(res[i].department) ? false: depotArr.push(res[i].department);
+    }
+    inquirer.prompt({
+      name: "depotChoice",
+      type: "list",
+      message: "Select the department you want to view the budget of",
+      choices: depotArr
+    }).then(answer => {
+      let depotFilter = res.filter(item => item.department === answer.depotChoice)
+      let depotSalary = depotFilter.map(a => a.salary);
+      var budget = depotSalary.reduce(function(a, b){
+        return a + b;
+    }, 0);
+    console.log("\n" + depotFilter[0].department + "'s department budget: $" + budget + "\n")
+    runEmployeeEdit();
+    })
   })
 
 };
