@@ -328,8 +328,53 @@ const addEmpFunc = () => {
 };
 // update func
 const empRoleFunc = () => {
+  const query = `SELECT e.id AS ID, 
+  concat(e.first_name, " ", e.last_name) AS name, 
+  title AS title, e.role_id
+  FROM employee e
+  JOIN employee_role ON e.role_id = employee_role.id
+  JOIN department ON employee_role.department_id = department.id
+  LEFT JOIN employee m ON e.manager_id = m.id`
+  connection.query(query, function (err, res) {
+    let roleArr = []
+    for (let i = 0; i < res.length; i++) {
+      (roleArr.includes(res[i].title)) ? false : roleArr.push(res[i].title);
+    }
+    let empList = res.map(e => e.name);
 
-  runEmployeeEdit();
+    inquirer.prompt([
+      {
+      name: "empRoleUpdate",
+      type: "list",
+      message: "Who's role would you like to update?",
+      choices: empList
+    },
+    {
+        name: "empRoleSelect",
+        type: "list",
+        message: "What is their new role?",
+        choices: roleArr
+      }
+    ])
+      .then(answer => {
+        let roleId;
+        let empId;
+        for (let i = 0; i < res.length; i++) {
+          (res[i].title === answer.empRoleSelect) ? roleId = res[i].role_id : false;
+        }
+        for (let i = 0; i < res.length; i++) {
+          (res[i].name === answer.empRoleUpdate) ? empId = res[i].ID : false;
+        }
+        const query2 = `UPDATE employee
+        SET role_id = ?
+        WHERE id = ?`
+        connection.query(query2, [roleId, empId], function(err,res){
+          console.log(answer.empRoleUpdate + "'s role has been changed to " + answer.empRoleSelect + "!")
+        })
+      })
+
+  })
+
 
 };
 // update func
@@ -404,7 +449,7 @@ const removeDepotFunc = () => {
   runEmployeeEdit();
 
 };
-// weird view func
+// finished
 const budgetFunc = () => {
   const query = `SELECT salary, 
   department_name AS department
@@ -414,8 +459,8 @@ const budgetFunc = () => {
 
   connection.query(query, function (err, res) {
     let depotArr = []
-    for (let i = 0; i < res.length; i++){
-      depotArr.includes(res[i].department) ? false: depotArr.push(res[i].department);
+    for (let i = 0; i < res.length; i++) {
+      depotArr.includes(res[i].department) ? false : depotArr.push(res[i].department);
     }
     inquirer.prompt({
       name: "depotChoice",
@@ -425,11 +470,11 @@ const budgetFunc = () => {
     }).then(answer => {
       let depotFilter = res.filter(item => item.department === answer.depotChoice)
       let depotSalary = depotFilter.map(a => a.salary);
-      var budget = depotSalary.reduce(function(a, b){
+      var budget = depotSalary.reduce(function (a, b) {
         return a + b;
-    }, 0);
-    console.log("\n" + depotFilter[0].department + "'s department budget: $" + budget + "\n")
-    runEmployeeEdit();
+      }, 0);
+      console.log("\n" + depotFilter[0].department + "'s department budget: $" + budget + "\n")
+      runEmployeeEdit();
     })
   })
 
