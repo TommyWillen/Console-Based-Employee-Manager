@@ -100,13 +100,11 @@ const viewAllFunc = () => {
   JOIN department ON employee_role.department_id = department.id
   LEFT JOIN employee m ON e.manager_id = m.id`;
 
-  connection.query(query, function (err, res) {
+  connection.query(query, (err, res) => {
     console.log("\n" + res.length + " employees found! \n");
     let empArr = []
-    for (let i = 0; i < res.length; i++) {
-      let empObj = { Id: res[i].ID, Name: res[i].name, Title: res[i].title, Salary: res[i].salary, Department: res[i].department, Manager: res[i].manager }
-      empArr.push(empObj);
-    }
+    res.forEach(emp => empArr.push({ Id: emp.ID, Name: emp.name, Title: emp.title, Salary: emp.salary, Department: emp.department, Manager: emp.manager }))
+
     console.table(empArr);
     console.log("\n")
     runEmployeeEdit();
@@ -115,7 +113,7 @@ const viewAllFunc = () => {
 };
 // finished
 const viewDepotFunc = () => {
-  connection.query("Select department.department_name FROM department", function (err, res) {
+  connection.query("Select department.department_name FROM department", (err, res) => {
     let depotChoice = [];
     for (let i = 0; i < res.length; i++) {
       depotChoice.push(res[i].department_name);
@@ -137,7 +135,7 @@ const viewDepotFunc = () => {
       JOIN department ON employee_role.department_id = department.id
       LEFT JOIN employee m ON e.manager_id = m.id
       where department.department_name = ?`
-      connection.query(query, [response.empDepotSearch], function (err, res) {
+      connection.query(query, [response.empDepotSearch], (err, res) => {
         console.log("\n" + res.length + " employees found! \n");
         let empArr = []
         for (let i = 0; i < res.length; i++) {
@@ -159,11 +157,9 @@ const viewManagerFunc = () => {
   FROM employee e
   JOIN employee_role ON e.role_id = employee_role.id
   WHERE employee_role.is_manager = true`,
-    function (err, res) {
+    (err, res) => {
       let mangChoice = [];
-      for (let i = 0; i < res.length; i++) {
-        mangChoice.push(res[i]);
-      }
+      res.forEach(mang => mangChoice.push(mang))
       inquirer.prompt({
         name: "empMangSearch",
         type: "list",
@@ -182,7 +178,7 @@ const viewManagerFunc = () => {
       LEFT JOIN employee m ON e.manager_id = m.id
       where m.ID = ?`
         let realMang = mangChoice.filter(mang => mang.name === response.empMangSearch);
-        connection.query(query, realMang[0].ID, function (err, res) {
+        connection.query(query, realMang[0].ID, (err, res) => {
           console.log("\n" + res.length + " employees found! \n");
           let empArr = []
           for (let i = 0; i < res.length; i++) {
@@ -202,9 +198,7 @@ const viewRoleFunc = () => {
 
   connection.query("Select employee_role.title FROM employee_role", function (err, res) {
     let roleChoice = [];
-    for (let i = 0; i < res.length; i++) {
-      roleChoice.push(res[i].title);
-    }
+    res.forEach(role => roleChoice.push(role.title));
     inquirer.prompt({
       name: "empRoleSearch",
       type: "list",
@@ -222,13 +216,10 @@ const viewRoleFunc = () => {
       JOIN department ON employee_role.department_id = department.id
       LEFT JOIN employee m ON e.manager_id = m.id
       where employee_role.title = ?`
-      connection.query(query, [response.empRoleSearch], function (err, res) {
+      connection.query(query, [response.empRoleSearch], (err, res) => {
         console.log("\n" + res.length + " employees found! \n");
         let empArr = []
-        for (let i = 0; i < res.length; i++) {
-          let empObj = { Id: res[i].ID, Name: res[i].name, Title: res[i].title, Salary: res[i].salary, Department: res[i].department, Manager: res[i].manager }
-          empArr.push(empObj);
-        }
+        res.forEach(emp => empArr.push({ Id: res[i].ID, Name: res[i].name, Title: res[i].title, Salary: res[i].salary, Department: res[i].department, Manager: res[i].manager }))
         console.table(empArr);
         console.log("\n")
         runEmployeeEdit();
@@ -252,11 +243,9 @@ const addEmpFunc = () => {
   JOIN department ON employee_role.department_id = department.id
   LEFT JOIN employee m ON e.manager_id = m.id`
 
-  connection.query(query, function (err, res) {
+  connection.query(query, (err, res) => {
     let depotChoice = [];
-    for (let i = 0; i < res.length; i++) {
-      (depotChoice.includes(res[i].department)) ? false : depotChoice.push(res[i].department);
-    }
+    res.forEach(depot => (depotChoice.includes(depot.department)) ? false : depotChoice.push(depot.department))
     inquirer.prompt([{
       name: "addFirstName",
       type: "input",
@@ -275,12 +264,8 @@ const addEmpFunc = () => {
     }]).then(ans => {
       let managerList = [];
       let roleList = [];
-      for (let i = 0; i < res.length; i++) {
-        (res[i].is_manager && res[i].department === ans.depotChoice) ? managerList.push(res[i].name) : false
-      }
-      for (let i = 0; i < res.length; i++) {
-        (!roleList.includes(res[i].title) && res[i].department === ans.depotChoice) ? roleList.push(res[i].title) : false
-      }
+      res.forEach(mang => (res[i].is_manager && res[i].department === ans.depotChoice) ? managerList.push(res[i].name) : false)
+      res.forEach(role => (!roleList.includes(res[i].title) && res[i].department === ans.depotChoice) ? roleList.push(res[i].title) : false)
       inquirer.prompt(
         {
           name: "roleChoice",
@@ -302,7 +287,7 @@ const addEmpFunc = () => {
               let mangChoice = res.filter(mang => mang.name === response.managerChoice);
               let query2 = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
           VALUES (?, ?, ?, ?)`
-              connection.query(query2, [ans.addFirstName, ans.addLastName, titleChoice[0].role_id, mangChoice[0].ID], function (err, res2) {
+              connection.query(query2, [ans.addFirstName, ans.addLastName, titleChoice[0].role_id, mangChoice[0].ID], (err, res2) => {
                 console.log("Employee added! \n")
                 runEmployeeEdit();
               })
@@ -312,7 +297,7 @@ const addEmpFunc = () => {
             let titleChoice = res.filter(title => title.title === answer.roleChoice);
             let query2 = `INSERT INTO employee (first_name, last_name, role_id)
         VALUES (?, ?, ?)`
-            connection.query(query2, [ans.addFirstName, ans.addLastName, titleChoice[0].role_id], function (err, res2) {
+            connection.query(query2, [ans.addFirstName, ans.addLastName, titleChoice[0].role_id], (err, res2) => {
               console.log("Manager added! \n")
               runEmployeeEdit();
             })
@@ -335,11 +320,10 @@ const empRoleFunc = () => {
   JOIN employee_role ON e.role_id = employee_role.id
   JOIN department ON employee_role.department_id = department.id
   LEFT JOIN employee m ON e.manager_id = m.id`
-  connection.query(query, function (err, res) {
+  connection.query(query, (err, res) => {
     let roleArr = []
-    for (let i = 0; i < res.length; i++) {
-      (roleArr.includes(res[i].title)) ? false : roleArr.push(res[i].title);
-    }
+    res.forEach(role => (roleArr.includes(role.title)) ? false : roleArr.push(role.title))
+
     let empList = res.map(e => e.name);
 
     inquirer.prompt([
@@ -364,7 +348,7 @@ const empRoleFunc = () => {
         const query2 = `UPDATE employee
         SET role_id = ?
         WHERE id = ?`
-        connection.query(query2, [roleId, empId], function (err, res) {
+        connection.query(query2, [roleId, empId], (err, res) => {
           console.log(answer.empRoleUpdate + "'s role has been changed to " + answer.empRoleSelect + "!")
         })
       })
@@ -373,7 +357,7 @@ const empRoleFunc = () => {
 
 
 };
-// update func
+// finished
 const empManFunc = () => {
   const query = `SELECT e.id AS ID, 
   concat(e.first_name, " ", e.last_name) AS name,
@@ -383,7 +367,7 @@ const empManFunc = () => {
   JOIN employee_role ON e.role_id = employee_role.id
   LEFT JOIN employee m ON e.manager_id = m.id`;
 
-  connection.query(query, function (err, res) {
+  connection.query(query, (err, res) => {
     const mangList = []
     res.forEach(mang => (mang.is_manager) ? mangList.push(mang.name) : false);
     const empList = [];
@@ -402,7 +386,7 @@ const empManFunc = () => {
         choices: mangList
       }
     ]).then(ans => {
-      let {empChoice, mangChoice} = ans;
+      let { empChoice, mangChoice } = ans;
       const query2 = `UPDATE employee
       SET manager_id = ?
       WHERE id = ?`
@@ -410,17 +394,46 @@ const empManFunc = () => {
       let empId;
       res.forEach(mang => (mang.name === mangChoice) ? mangId = mang.ID : false);
       res.forEach(emp => (emp.name === empChoice) ? empId = emp.ID : false);
-      connection.query(query2, [mangId, empId], function(err,res){
-        console.log("\n"+empChoice + "'s manager has been changed to " + mangChoice + "!\n")
+      connection.query(query2, [mangId, empId], (err, res) => {
+        console.log("\n" + empChoice + "'s manager has been changed to " + mangChoice + "!\n")
         runEmployeeEdit();
       })
     })
   })
 };
-// remove func
+// finished
 const removeEmpFunc = () => {
+  const query = `SELECT id, concat(e.first_name, " ", e.last_name)
+  FROM employee`
+  connection.query(query, (err, res) => {
+    const empList;
+    res.forEach(emp => empList.push(emp.name));
+    inquirer.prompt([
+      {
+        name: "empChoice",
+        type: "list",
+        message: "What is the name of the employee you would like to delete?",
+        choices: empList
+      },
+      {
+        name: "deleteConfirm",
+        type: "confirm",
+        message: "Are you sure you want to delete this employee?"
+      }
+    ]).then(ans => {
+      const empName = res.filter(emp => emp.name === ans.empChoice)
+      if (ans.deleteConfirm) {
+        const query2 = `DELETE FROM employee WHERE ?`
+        connection.query(query2, [empName], (err, response) => {
+          console.log("\n" + empName + " has been successfully removed from the employee roster \n");
+          runEmployeeEdit();
+        })
+      } else {
+        runEmployeeEdit();
+      }
+    })
+  })
 
-  runEmployeeEdit();
 
 };
 // finished
@@ -429,13 +442,10 @@ const roleFunc = () => {
   FROM employee_role r
   JOIN department ON r.department_id = department.id`;
 
-  connection.query(query, function (err, res) {
+  connection.query(query, (err, res) => {
     console.log("\n" + res.length + " roles found! \n");
     let empArr = []
-    for (let i = 0; i < res.length; i++) {
-      let empObj = { Id: res[i].ID, Title: res[i].title, Salary: res[i].salary, Department: res[i].department_name }
-      empArr.push(empObj);
-    }
+    res.forEach(emp => empArr.push({ Id: emp.ID, Title: emp.title, Salary: emp.salary, Department: emp.department_name }))
     console.table(empArr);
     console.log("\n")
     runEmployeeEdit();
@@ -458,13 +468,10 @@ const removeRoleFunc = () => {
 const depotsFunc = () => {
   const query = `SELECT * FROM department`;
 
-  connection.query(query, function (err, res) {
+  connection.query(query, (err, res) => {
     console.log("\n" + res.length + " departments found! \n");
     let empArr = []
-    for (let i = 0; i < res.length; i++) {
-      let empObj = { Id: res[i].id, Department: res[i].department_name }
-      empArr.push(empObj);
-    }
+    res.forEach(emp => empArr.push({ Id: emp.id, Department: emp.department_name }))
     console.table(empArr);
     console.log("\n")
     runEmployeeEdit();
@@ -491,11 +498,10 @@ const budgetFunc = () => {
   JOIN employee_role ON e.role_id = employee_role.id
   JOIN department ON employee_role.department_id = department.id`
 
-  connection.query(query, function (err, res) {
+  connection.query(query, (err, res) => {
     let depotArr = []
-    for (let i = 0; i < res.length; i++) {
-      depotArr.includes(res[i].department) ? false : depotArr.push(res[i].department);
-    }
+    res.forEach(depot => depotArr.includes(depot.department) ? false : depotArr.push(depot.department));
+
     inquirer.prompt({
       name: "depotChoice",
       type: "list",
@@ -504,9 +510,7 @@ const budgetFunc = () => {
     }).then(answer => {
       let depotFilter = res.filter(item => item.department === answer.depotChoice)
       let depotSalary = depotFilter.map(a => a.salary);
-      var budget = depotSalary.reduce(function (a, b) {
-        return a + b;
-      }, 0);
+      let budget = depotSalary.reduce( (a, b) => a + b, 0);
       console.log("\n" + depotFilter[0].department + "'s department budget: $" + budget + "\n")
       runEmployeeEdit();
     })
