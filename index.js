@@ -326,7 +326,7 @@ const addEmpFunc = () => {
 
 
 };
-// update func
+// finished
 const empRoleFunc = () => {
   const query = `SELECT e.id AS ID, 
   concat(e.first_name, " ", e.last_name) AS name, 
@@ -344,12 +344,12 @@ const empRoleFunc = () => {
 
     inquirer.prompt([
       {
-      name: "empRoleUpdate",
-      type: "list",
-      message: "Who's role would you like to update?",
-      choices: empList
-    },
-    {
+        name: "empRoleUpdate",
+        type: "list",
+        message: "Who's role would you like to update?",
+        choices: empList
+      },
+      {
         name: "empRoleSelect",
         type: "list",
         message: "What is their new role?",
@@ -359,16 +359,12 @@ const empRoleFunc = () => {
       .then(answer => {
         let roleId;
         let empId;
-        for (let i = 0; i < res.length; i++) {
-          (res[i].title === answer.empRoleSelect) ? roleId = res[i].role_id : false;
-        }
-        for (let i = 0; i < res.length; i++) {
-          (res[i].name === answer.empRoleUpdate) ? empId = res[i].ID : false;
-        }
+        res.forEach(role => (role.title === answer.empRoleSelect) ? roleId = role.role_id : false);
+        res.forEach(emp => (emp.name === answer.empRoleUpdate) ? empId = emp.ID : false);
         const query2 = `UPDATE employee
         SET role_id = ?
         WHERE id = ?`
-        connection.query(query2, [roleId, empId], function(err,res){
+        connection.query(query2, [roleId, empId], function (err, res) {
           console.log(answer.empRoleUpdate + "'s role has been changed to " + answer.empRoleSelect + "!")
         })
       })
@@ -379,9 +375,47 @@ const empRoleFunc = () => {
 };
 // update func
 const empManFunc = () => {
+  const query = `SELECT e.id AS ID, 
+  concat(e.first_name, " ", e.last_name) AS name,
+  concat(m.first_name, " ", m.last_name) AS manager,
+  is_manager
+  FROM employee e
+  JOIN employee_role ON e.role_id = employee_role.id
+  LEFT JOIN employee m ON e.manager_id = m.id`;
 
-  runEmployeeEdit();
-
+  connection.query(query, function (err, res) {
+    const mangList = []
+    res.forEach(mang => (mang.is_manager) ? mangList.push(mang.name) : false);
+    const empList = [];
+    res.forEach(emp => empList.push(emp.name));
+    inquirer.prompt([
+      {
+        name: "empChoice",
+        type: "list",
+        message: "Which employee would you like to update?",
+        choices: empList
+      },
+      {
+        name: "mangChoice",
+        type: "list",
+        message: "Who is their new manager?",
+        choices: mangList
+      }
+    ]).then(ans => {
+      let {empChoice, mangChoice} = ans;
+      const query2 = `UPDATE employee
+      SET manager_id = ?
+      WHERE id = ?`
+      let mangId;
+      let empId;
+      res.forEach(mang => (mang.name === mangChoice) ? mangId = mang.ID : false);
+      res.forEach(emp => (emp.name === empChoice) ? empId = emp.ID : false);
+      connection.query(query2, [mangId, empId], function(err,res){
+        console.log("\n"+empChoice + "'s manager has been changed to " + mangChoice + "!\n")
+        runEmployeeEdit();
+      })
+    })
+  })
 };
 // remove func
 const removeEmpFunc = () => {
