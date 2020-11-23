@@ -1,7 +1,7 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 require("dotenv").config();
-const text = require("./ignore/text")
+const text = require("./assets/scripts/text")
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -20,7 +20,7 @@ const connection = mysql.createConnection({
 
 connection.connect(function (err) {
   if (err) throw err;
-  // text();
+  text();
   runEmployeeEdit();
 });
 // first question to be called in the run employee edit function
@@ -422,7 +422,7 @@ const removeEmpFunc = () => {
       }
     ]).then(ans => {
       const empId = []
-      res.forEach(emp => (emp.name === ans.empChoice) ? empId.push(emp.id):false);
+      res.forEach(emp => (emp.name === ans.empChoice) ? empId.push(emp.id) : false);
       if (ans.deleteConfirm) {
         const query2 = `DELETE FROM employee WHERE id = ?`
         connection.query(query2, [empId], (err, response) => {
@@ -515,17 +515,17 @@ const removeRoleFunc = () => {
       {
         name: "delConfirm",
         type: "confirm",
-        message: "Warning: Removal of this role is perminant and will be removed from all employees with this role. Do you still want to proceed?"
+        message: "Warning: Removal of this role is permenant and will be removed from all employees with this role. Do you still want to proceed?"
       }
     ]).then(ans => {
-      const {roleRemove, delConfirm} = ans
+      const { roleRemove, delConfirm } = ans
       if (delConfirm === false) {
         runEmployeeEdit();
       } else {
         const delId = [];
-        res.forEach(id => (id.title === roleRemove) ? delId.push(id.id):false);
+        res.forEach(id => (id.title === roleRemove) ? delId.push(id.id) : false);
         const query2 = `DELETE FROM employee_role WHERE id = ?`
-        connection.query(query2,[delId], (err,res) => {
+        connection.query(query2, [delId], (err, res) => {
           console.log("\n The position, " + roleRemove + " has been successfully removed! \n")
           runEmployeeEdit();
         })
@@ -564,12 +564,36 @@ const addDepotFunc = () => {
       console.log("\n The " + ans.depotAdd + " department has been created!");
       runEmployeeEdit();
     })
-  })  
+  })
 };
-// revomve func
+// finished
 const removeDepotFunc = () => {
-
-  runEmployeeEdit();
+  const query = `SELECT * FROM department`
+  connection.query(query, (err, res) => {
+    depotList = [];
+    res.forEach(depot => depotList.push(depot.department_name))
+    inquirer.prompt([
+      {
+        name: "depotDel",
+        type: "list",
+        message: "What department would you like to remove?",
+        choices: depotList
+      },
+      {
+        name: "delConfirm",
+        type: "confirm",
+        message: "Warning: Removal of this department is permenant and will be removed from all roles and employees from this department. Do you still want to proceed?"
+      }
+    ]).then(ans => {
+      depotId = [];
+      res.forEach(id => (ans.depotDel === id.department_name) ? depotId.push(id.id) : false)
+      query2 = `DELETE FROM department WHERE id = ?`;
+      connection.query(query2, [depotId], (err, res) => {
+        console.log("\n The " + ans.depotDel + " department has been removed! \n");
+        runEmployeeEdit();
+      })
+    })
+  })
 
 };
 // finished
