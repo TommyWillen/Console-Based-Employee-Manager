@@ -403,10 +403,10 @@ const empManFunc = () => {
 };
 // finished
 const removeEmpFunc = () => {
-  const query = `SELECT id, concat(e.first_name, " ", e.last_name)
-  FROM employee`
+  const query = `SELECT id, concat(e.first_name, " ", e.last_name) AS name
+  FROM employee e`
   connection.query(query, (err, res) => {
-    const empList;
+    const empList = []
     res.forEach(emp => empList.push(emp.name));
     inquirer.prompt([
       {
@@ -421,11 +421,12 @@ const removeEmpFunc = () => {
         message: "Are you sure you want to delete this employee?"
       }
     ]).then(ans => {
-      const empName = res.filter(emp => emp.name === ans.empChoice)
+      const empId = []
+      res.forEach(emp => (emp.name === ans.empChoice) ? empId.push(emp.id):false);
       if (ans.deleteConfirm) {
-        const query2 = `DELETE FROM employee WHERE ?`
-        connection.query(query2, [empName], (err, response) => {
-          console.log("\n" + empName + " has been successfully removed from the employee roster \n");
+        const query2 = `DELETE FROM employee WHERE id = ?`
+        connection.query(query2, [empId], (err, response) => {
+          console.log("\n" + ans.empChoice + " has been successfully removed from the employee roster \n");
           runEmployeeEdit();
         })
       } else {
@@ -452,16 +453,86 @@ const roleFunc = () => {
   })
 
 };
-// add func
+// finished
 const addRoleFunc = () => {
+  const query = `SELECT department_name, id FROM department`
+  connection.query(query, (err, res) => {
+    const depotList = []
+    res.forEach(depot => depotList.push(depot.department_name));
+    inquirer.prompt([
+      {
+        name: "roleTitle",
+        type: "input",
+        message: "What is the title of the role you wish to create?",
+        validate: val => (val.length < 3) ? "Title must be at least 3 or more characters long" : true,
+      },
+      {
+        name: "roleDepot",
+        type: "list",
+        message: "What department does this role fall under?",
+        choices: depotList,
+      },
+      {
+        name: "roleMang",
+        type: "confirm",
+        message: "Is this a managerial role?",
+      },
+      {
+        name: "roleSalary",
+        type: "input",
+        message: "What is the starting salary of this role?",
+        validate: val => (isNaN(parseInt(val))) ? "Must be a number" : true,
+      }
+    ]).then(ans => {
+      const { roleTitle, roleDepot, roleMang, roleSalary } = ans;
+      const roleId = [];
+      res.forEach(depot => (roleDepot === depot.department_name) ? roleId.push(depot.id) : false);
+      const query2 = `INSERT INTO employee_role (title, salary, department_id, is_manager)
+    VALUES (?, ?, ?, ?)`
+      connection.query(query2, [roleTitle, roleSalary, roleId, roleMang], (err, res) => {
+        console.log("\n The role, " + roleTitle + " has been added to the" + roleDepot + " department! \n");
+        runEmployeeEdit();
+      })
+    })
+  })
 
-  runEmployeeEdit();
 
 };
-// remove func
+// finished
 const removeRoleFunc = () => {
+  const query = `SELECT id, title
+  FROM employee_role`
+  connection.query(query, (err, res) => {
+    const roleList = [];
+    res.forEach(role => roleList.push(role.title));
+    inquirer.prompt([
+      {
+        name: "roleRemove",
+        type: "list",
+        message: "Which role would you like to remove?",
+        choices: roleList
+      },
+      {
+        name: "delConfirm",
+        type: "confirm",
+        message: "Warning: Removal of this role is perminant and will be removed from all employees with this role. Do you still want to proceed?"
+      }
+    ]).then(ans => {
+      const {roleRemove, delConfirm} = ans
+      if (delConfirm === false) {
+        runEmployeeEdit();
+      } else {
+        const delId = [];
+        res.forEach(id => (id.title === roleRemove) ? delId.push(id.id):false);
+        const query2 = `DELETE FROM employee_role WHERE id = ?`
+        connection.query(query2,[delId], (err,res) => {
+          console.log("\n The position, " + roleRemove + " has been successfully removed! \n")
+          runEmployeeEdit();
+        })
+      }
+    })
+  })
 
-  runEmployeeEdit();
 
 };
 // finished
@@ -478,11 +549,22 @@ const depotsFunc = () => {
   })
 
 };
-// add func
+// finished
 const addDepotFunc = () => {
 
-  runEmployeeEdit();
-
+  inquirer.prompt({
+    name: "depotAdd",
+    type: "input",
+    message: "What is the name of the department you wish to create?",
+    validate: val => (val.length < 3) ? "Title must be at least 3 or more characters long" : true,
+  }).then(ans => {
+    const query = `INSERT INTO department (department_name)
+    VALUES (?)`;
+    connection.query(query, [ans.depotAdd], (err, res) => {
+      console.log("\n The " + ans.depotAdd + " department has been created!");
+      runEmployeeEdit();
+    })
+  })  
 };
 // revomve func
 const removeDepotFunc = () => {
@@ -510,7 +592,7 @@ const budgetFunc = () => {
     }).then(answer => {
       let depotFilter = res.filter(item => item.department === answer.depotChoice)
       let depotSalary = depotFilter.map(a => a.salary);
-      let budget = depotSalary.reduce( (a, b) => a + b, 0);
+      let budget = depotSalary.reduce((a, b) => a + b, 0);
       console.log("\n" + depotFilter[0].department + "'s department budget: $" + budget + "\n")
       runEmployeeEdit();
     })
