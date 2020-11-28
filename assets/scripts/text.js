@@ -1,4 +1,4 @@
-
+// this the the module that is called to display my fancy ascii art I had to double up on forward slashes for them to appear...
 const employeeText = () => {
     console.log(`    ______                __                         __  ___                                 `);
     console.log(`   / ____/___ ___  ____  / /___  __  _____  ___     /  |/  /___ _____  ____ _____ ____  _____`);

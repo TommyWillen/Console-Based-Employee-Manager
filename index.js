@@ -1,8 +1,10 @@
+// npm packages required for this app to function
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 require("dotenv").config();
 const text = require("./assets/scripts/text")
 
+// be sure to set up a .env file for all of your required inputs
 const connection = mysql.createConnection({
   host: "localhost",
 
@@ -17,77 +19,185 @@ const connection = mysql.createConnection({
   // You will need to create the db and add it here or in a .env file
   database: process.env.DB_DB
 });
-
+// connects to database
 connection.connect(function (err) {
   if (err) throw err;
+  // this is an ascii art that displays once the program start up
   text();
   runEmployeeEdit();
 });
+
 // first question to be called in the run employee edit function
-const readyQuestion = {
-  name: "action",
+const initQuest = {
+  name: "initialQ",
   type: "list",
   message: "What would you like to do?",
   choices: [
-    { name: "View all employees", value: "viewAll" },
-    { name: "View employees by department", value: "viewDepot" },
-    { name: "View employees by manager", value: "viewManager" },
-    { name: "View employees by employee role", value: "viewRole" },
-    { name: "Add employee", value: "addEmp" },
-    { name: "Update employee role", value: "empRole" },
-    { name: "Update employee manager", value: "empMan" },
-    { name: "Remove employee", value: "removeEmp" },
-    { name: "View all roles", value: "role" },
-    { name: "Add new role", value: "addRole" },
-    { name: "Remove role", value: "removeRole" },
-    { name: "View all departments", value: "depots" },
-    { name: "Add department", value: "addDepot" },
-    { name: "Remove department", value: "removeDepot" },
-    { name: "View department budget", value: "budget" },
-    { name: "Exit application", value: "exit" }
-  ],
-  loop: true,
+      { name: "Employee Hub", value: "emp"},
+      { name: "Employee Role Hub", value: "role" },
+      { name: "Department Hub", value: "depot"},
+      { name: "Exit application", value: "exit" },
+  ]
 }
-// finished
+// questions to be called in the employee hub menu
+const empInit = {
+  name: "empInitQ",
+  type: "list",
+  message: "Welcome to the Employee Hub! What would you like to do?",
+  choices: [
+      { name: "View employees", value: "view"},
+      { name: "Add an employee", value: "add" },
+      { name: "Update employee information", value: "update"},
+      { name: "Remove employee", value: "remove"},
+      { name: "Back to main", value: "back"}
+  ]
+}
+// question for the employee view function
+const empViewQ = {
+  name: "empView",
+  type: "list",
+  message: "Which employees would you like to view?",
+  choices: [
+      { name: "View all employees", value: "all" },
+      { name: "View employees by department", value: "depot" },
+      { name: "View employees by role", value: "role" },
+      { name: "View employees by manager", value: "mang"},
+      { name: "Return to employee hub", value: "return"}
+  ]
+}
+// question for the employeeUpdate menu
+const empUpdateQ = {
+name: "empUpQuest",
+type: "list",
+message: "What do you want to update?",
+choices: [
+  { name: "Update employee role", value: "role"},
+  { name: "Update employee manager", value: "mang"},
+  { name: "Return to employee hub", value: "return"}
+]
+}
+// question for the employee role hub
+const roleInit = {
+  name: "roleInitQ",
+  type: "list",
+  message: "Welcome to the Employee Role Hub! What would you like to do?",
+  choices: [
+      { name: "View all roles", value: "view"},
+      { name: "Add an employee role", value: "add" },
+      { name: "Remove employee role", value: "remove"},
+      {name: "Return to main", value: "return"},
+  ]
+}
+// question for the department hub
+const depotInit = {
+  name: "depotInitQ",
+  type: "list",
+  message: "Welcome to the Department Hub! What would you like to do?",
+  choices: [
+      { name: "View all departments", value: "view"},
+      { name: "Add a department", value: "add" },
+      { name: "Remove department", value: "remove"},
+      { name: "View department budget", value: "budget"},
+      { name: "Return to main", value: "return"}
+  ]
+}
+
+// this the main functions that uses a switch to direct the user to the appropriate task to be completed.
 const runEmployeeEdit = () => {
   inquirer
-    .prompt(readyQuestion).then(response => {
-      switch (response.action) {
-        case "viewAll": viewAllFunc();
-          break;
-        case "viewDepot": viewDepotFunc();
-          break;
-        case "viewManager": viewManagerFunc();
-          break;
-        case "viewRole": viewRoleFunc();
-          break;
-        case "addEmp": addEmpFunc();
-          break;
-        case "empRole": empRoleFunc();
-          break;
-        case "empMan": empManFunc();
-          break;
-        case "removeEmp": removeEmpFunc();
-          break;
-        case "role": roleFunc();
-          break;
-        case "addRole": addRoleFunc();
-          break;
-        case "removeRole": removeRoleFunc();
-          break;
-        case "depots": depotsFunc();
-          break;
-        case "addDepot": addDepotFunc();
-          break;
-        case "removeDepot": removeDepotFunc();
-          break;
-        case "budget": budgetFunc();
-          break;
+    .prompt(initQuest).then(response => {
+      switch (response.initialQ) {
+        case "emp": empHubFunc();
+        break;
+        case "role": roleHubFunc();
+        break;
+        case "depot": depotHubFunc();
+        break;
         case "exit": connection.end();
+        break;
       }
     })
 }
-// finished
+// this switch statement directs the user to all of the options for editing/viewing employees
+const empHubFunc = () => {
+    inquirer.prompt(empInit).then(answer => {
+        switch(answer.empInitQ) {
+            case "view": empViewHub();
+            break;
+            case "add": addEmpFunc();
+            break;
+            case "update": empUpdateHub();
+            break;
+            case "remove": removeEmpFunc();
+            break;
+            case "back": runEmployeeEdit();
+            break;
+        }
+    })
+}
+// this switch statement handles which function is called based on what employees the user wishes to view
+const empViewHub = () => {
+  inquirer.prompt(empViewQ).then(answer => {
+    switch(answer.empView) {
+      case "all": viewAllFunc();
+      break;
+      case "depot": viewDepotFunc();
+      break;
+      case "role": viewRoleFunc();
+      break;
+      case "mang": viewManagerFunc();
+      break;
+      case "return": empHubFunc();
+    }
+  })
+}
+// this switch statement hangles which function is called based on what aspect of the employee is updated
+const empUpdateHub = () => {
+  inquirer.prompt(empUpdateQ).then(answer => {
+    switch(answer.empUpQuest) {
+      case "role": empRoleFunc();
+      break;
+      case "mang": empManFunc();
+      break;
+      case "return": empHubFunc();
+      break;
+    }
+  })
+}
+// this switch statement directs the user to all of the options for editing/viewing employee roles
+const roleHubFunc = () => {
+  inquirer.prompt(roleInit).then(answer => {
+    switch (answer.roleInitQ) {
+      case "view": roleFunc();
+      break;
+      case "add": addRoleFunc();
+      break;
+      case "remove": removeRoleFunc();
+      break;
+      case "return": runEmployeeEdit();
+    }
+
+    }) 
+}
+// this switch statement directs the user to all of the options for editing/viewing departments
+const depotHubFunc = () => {
+  inquirer.prompt(depotInit).then(answer => {
+    switch (answer.depotInitQ) {
+      case "view": depotsFunc();
+      break;
+      case "add": addDepotFunc();
+      break;
+      case "remove": removeDepotFunc();
+      break;
+      case "budget": budgetFunc();
+      break;
+      case "return": runEmployeeEdit();
+      break;
+    }
+  })
+}
+
+// this function queries the database and returns all of the employee information in a console table
 const viewAllFunc = () => {
   const query = `SELECT e.id AS ID, 
   concat(e.first_name, " ", e.last_name) AS name, 
@@ -111,7 +221,7 @@ const viewAllFunc = () => {
   })
 
 };
-// finished
+// this function queries the database for departments then asks to user to select one. It then uses the users input to query the database and returns all of the employee information for that specific department in a console table
 const viewDepotFunc = () => {
   connection.query("Select department.department_name FROM department", (err, res) => {
     let depotChoice = [];
@@ -151,7 +261,7 @@ const viewDepotFunc = () => {
 
 
 };
-// finished
+// this function queries the database for managers then asks to user to select one. It then uses the users input to query the database and returns all of the employee information for that specific manager in a console table
 const viewManagerFunc = () => {
   connection.query(`SELECT e.ID, concat(e.first_name, " ", e.last_name) AS name
   FROM employee e
@@ -193,7 +303,7 @@ const viewManagerFunc = () => {
     })
 
 };
-// finished
+// this function queries the database for roles then asks to user to select one. It then uses the users input to query the database and returns all of the employee information for that specific role in a console table
 const viewRoleFunc = () => {
 
   connection.query("Select employee_role.title FROM employee_role", function (err, res) {
@@ -228,7 +338,7 @@ const viewRoleFunc = () => {
   })
 
 };
-// finished
+// this function first queries the database for information about all employees. It then asks for employee information and the department they are joining. Based on their department choice, the user is then asked to select roles and managers from a tailored list. It takes all of this information and inserts the employee information into the database.
 const addEmpFunc = () => {
   let query = `SELECT e.id AS ID, 
   concat(e.first_name, " ", e.last_name) AS name,
@@ -311,7 +421,7 @@ const addEmpFunc = () => {
 
 
 };
-// finished
+// this function queries the database for an employee list and uses as a choice for the first question. The user then selects the role for the user based on a list of roles. Finally the database is updated with the new employee role.
 const empRoleFunc = () => {
   const query = `SELECT e.id AS ID, 
   concat(e.first_name, " ", e.last_name) AS name, 
@@ -357,7 +467,7 @@ const empRoleFunc = () => {
 
 
 };
-// finished
+// this function the database for an employee list and a manager list. It then asks to user to select the employee and their new manager and then updates the database with the new information.
 const empManFunc = () => {
   const query = `SELECT e.id AS ID, 
   concat(e.first_name, " ", e.last_name) AS name,
@@ -401,7 +511,7 @@ const empManFunc = () => {
     })
   })
 };
-// finished
+// this function queries the database for an employee list and has the user select the employee they would like to remove. It asks for confirmation and will delete the employee from the database if the user confirms it.
 const removeEmpFunc = () => {
   const query = `SELECT id, concat(e.first_name, " ", e.last_name) AS name
   FROM employee e`
@@ -437,7 +547,7 @@ const removeEmpFunc = () => {
 
 
 };
-// finished
+// this function queries the database for employee roles and displays the information as a console table
 const roleFunc = () => {
   const query = `SELECT r.id as ID, r.title, r.salary, department_name
   FROM employee_role r
@@ -453,7 +563,7 @@ const roleFunc = () => {
   })
 
 };
-// finished
+// this function queries the database for a department list and asks the user to input a role title, select a department, and salary. It also asks if this is a managerial role and inserts the information into the database
 const addRoleFunc = () => {
   const query = `SELECT department_name, id FROM department`
   connection.query(query, (err, res) => {
@@ -498,7 +608,7 @@ const addRoleFunc = () => {
 
 
 };
-// finished
+// this function queries the database for a employee role list and allows the user to select the one they wish to remove and then asks for confirmation. If confirmed, the role information will be deleted from the database.
 const removeRoleFunc = () => {
   const query = `SELECT id, title
   FROM employee_role`
@@ -535,7 +645,7 @@ const removeRoleFunc = () => {
 
 
 };
-// finished
+// this function queries the database for departments and displays the information as a console table
 const depotsFunc = () => {
   const query = `SELECT * FROM department`;
 
@@ -549,7 +659,7 @@ const depotsFunc = () => {
   })
 
 };
-// finished
+// this function ask for the name of the new department to be added and inserts it into the database.
 const addDepotFunc = () => {
 
   inquirer.prompt({
@@ -566,7 +676,7 @@ const addDepotFunc = () => {
     })
   })
 };
-// finished
+// this function queries the database for a department list and allows the user to select the one they wish to remove and then asks for confirmation. If confirmed, the department information will be deleted from the database.
 const removeDepotFunc = () => {
   const query = `SELECT * FROM department`
   connection.query(query, (err, res) => {
@@ -596,7 +706,7 @@ const removeDepotFunc = () => {
   })
 
 };
-// finished
+// this function queries the salaries and department names for all employees. It then asks the user to select one department and adds the salaries of all employees for that department and displays it in a console log
 const budgetFunc = () => {
   const query = `SELECT salary, 
   department_name AS department
