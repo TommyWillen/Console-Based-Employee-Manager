@@ -225,9 +225,7 @@ const viewAllFunc = () => {
 const viewDepotFunc = () => {
   connection.query("Select department.department_name FROM department", (err, res) => {
     let depotChoice = [];
-    for (let i = 0; i < res.length; i++) {
-      depotChoice.push(res[i].department_name);
-    }
+    res.forEach(depot => depotChoice.push(depot.department_name))
     inquirer.prompt({
       name: "empDepotSearch",
       type: "list",
@@ -248,10 +246,8 @@ const viewDepotFunc = () => {
       connection.query(query, [response.empDepotSearch], (err, res) => {
         console.log("\n" + res.length + " employees found! \n");
         let empArr = []
-        for (let i = 0; i < res.length; i++) {
-          let empObj = { Id: res[i].ID, Name: res[i].name, Title: res[i].title, Salary: res[i].salary, Department: res[i].department, Manager: res[i].manager }
-          empArr.push(empObj);
-        }
+        res.forEach(emp => empArr.push({ Id: emp.ID, Name: emp.name, Title: emp.title, Salary: emp.salary, Department: emp.department, Manager: emp.manager }))
+
         console.table(empArr);
         console.log("\n")
         runEmployeeEdit();
@@ -291,10 +287,8 @@ const viewManagerFunc = () => {
         connection.query(query, realMang[0].ID, (err, res) => {
           console.log("\n" + res.length + " employees found! \n");
           let empArr = []
-          for (let i = 0; i < res.length; i++) {
-            let empObj = { Id: res[i].ID, Name: res[i].name, Title: res[i].title, Salary: res[i].salary, Department: res[i].department, Manager: res[i].manager }
-            empArr.push(empObj);
-          }
+          res.forEach(emp => empArr.push({ Id: emp.ID, Name: emp.name, Title: emp.title, Salary: emp.salary, Department: emp.department, Manager: emp.manager }))
+         
           console.table(empArr);
           console.log("\n")
           runEmployeeEdit();
@@ -329,7 +323,7 @@ const viewRoleFunc = () => {
       connection.query(query, [response.empRoleSearch], (err, res) => {
         console.log("\n" + res.length + " employees found! \n");
         let empArr = []
-        res.forEach(emp => empArr.push({ Id: res[i].ID, Name: res[i].name, Title: res[i].title, Salary: res[i].salary, Department: res[i].department, Manager: res[i].manager }))
+        res.forEach(emp => empArr.push({ Id: emp.ID, Name: emp.name, Title: emp.title, Salary: emp.salary, Department: emp.department, Manager: emp.manager }))
         console.table(empArr);
         console.log("\n")
         runEmployeeEdit();
@@ -374,8 +368,8 @@ const addEmpFunc = () => {
     }]).then(ans => {
       let managerList = [];
       let roleList = [];
-      res.forEach(mang => (res[i].is_manager && res[i].department === ans.depotChoice) ? managerList.push(res[i].name) : false)
-      res.forEach(role => (!roleList.includes(res[i].title) && res[i].department === ans.depotChoice) ? roleList.push(res[i].title) : false)
+      res.forEach(mang => (mang.is_manager && mang.department === ans.depotChoice) ? managerList.push(mang.name) : false)
+      res.forEach(role => (!roleList.includes(role.title) && role.department === ans.depotChoice) ? roleList.push(role.title) : false)
       inquirer.prompt(
         {
           name: "roleChoice",
