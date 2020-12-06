@@ -33,10 +33,10 @@ const initQuest = {
   type: "list",
   message: "What would you like to do?",
   choices: [
-      { name: "Employee Hub", value: "emp"},
-      { name: "Employee Role Hub", value: "role" },
-      { name: "Department Hub", value: "depot"},
-      { name: "Exit application", value: "exit" },
+    { name: "Employee Hub", value: "emp" },
+    { name: "Employee Role Hub", value: "role" },
+    { name: "Department Hub", value: "depot" },
+    { name: "Exit application", value: "exit" },
   ]
 }
 // questions to be called in the employee hub menu
@@ -45,11 +45,11 @@ const empInit = {
   type: "list",
   message: "Welcome to the Employee Hub! What would you like to do?",
   choices: [
-      { name: "View employees", value: "view"},
-      { name: "Add an employee", value: "add" },
-      { name: "Update employee information", value: "update"},
-      { name: "Remove employee", value: "remove"},
-      { name: "Back to main", value: "back"}
+    { name: "View employees", value: "view" },
+    { name: "Add an employee", value: "add" },
+    { name: "Update employee information", value: "update" },
+    { name: "Remove employee", value: "remove" },
+    { name: "Back to main", value: "back" }
   ]
 }
 // question for the employee view function
@@ -58,23 +58,23 @@ const empViewQ = {
   type: "list",
   message: "Which employees would you like to view?",
   choices: [
-      { name: "View all employees", value: "all" },
-      { name: "View employees by department", value: "depot" },
-      { name: "View employees by role", value: "role" },
-      { name: "View employees by manager", value: "mang"},
-      { name: "Return to employee hub", value: "return"}
+    { name: "View all employees", value: "all" },
+    { name: "View employees by department", value: "depot" },
+    { name: "View employees by role", value: "role" },
+    { name: "View employees by manager", value: "mang" },
+    { name: "Return to employee hub", value: "return" }
   ]
 }
 // question for the employeeUpdate menu
 const empUpdateQ = {
-name: "empUpQuest",
-type: "list",
-message: "What do you want to update?",
-choices: [
-  { name: "Update employee role", value: "role"},
-  { name: "Update employee manager", value: "mang"},
-  { name: "Return to employee hub", value: "return"}
-]
+  name: "empUpQuest",
+  type: "list",
+  message: "What do you want to update?",
+  choices: [
+    { name: "Update employee role", value: "role" },
+    { name: "Update employee manager", value: "mang" },
+    { name: "Return to employee hub", value: "return" }
+  ]
 }
 // question for the employee role hub
 const roleInit = {
@@ -82,10 +82,10 @@ const roleInit = {
   type: "list",
   message: "Welcome to the Employee Role Hub! What would you like to do?",
   choices: [
-      { name: "View all roles", value: "view"},
-      { name: "Add an employee role", value: "add" },
-      { name: "Remove employee role", value: "remove"},
-      {name: "Return to main", value: "return"},
+    { name: "View all roles", value: "view" },
+    { name: "Add an employee role", value: "add" },
+    { name: "Remove employee role", value: "remove" },
+    { name: "Return to main", value: "return" },
   ]
 }
 // question for the department hub
@@ -94,11 +94,11 @@ const depotInit = {
   type: "list",
   message: "Welcome to the Department Hub! What would you like to do?",
   choices: [
-      { name: "View all departments", value: "view"},
-      { name: "Add a department", value: "add" },
-      { name: "Remove department", value: "remove"},
-      { name: "View department budget", value: "budget"},
-      { name: "Return to main", value: "return"}
+    { name: "View all departments", value: "view" },
+    { name: "Add a department", value: "add" },
+    { name: "Remove department", value: "remove" },
+    { name: "View department budget", value: "budget" },
+    { name: "Return to main", value: "return" }
   ]
 }
 
@@ -108,45 +108,45 @@ const runEmployeeEdit = () => {
     .prompt(initQuest).then(response => {
       switch (response.initialQ) {
         case "emp": empHubFunc();
-        break;
+          break;
         case "role": roleHubFunc();
-        break;
+          break;
         case "depot": depotHubFunc();
-        break;
+          break;
         case "exit": connection.end();
-        break;
+          break;
       }
     })
 }
 // this switch statement directs the user to all of the options for editing/viewing employees
 const empHubFunc = () => {
-    inquirer.prompt(empInit).then(answer => {
-        switch(answer.empInitQ) {
-            case "view": empViewHub();
-            break;
-            case "add": addEmpFunc();
-            break;
-            case "update": empUpdateHub();
-            break;
-            case "remove": removeEmpFunc();
-            break;
-            case "back": runEmployeeEdit();
-            break;
-        }
-    })
+  inquirer.prompt(empInit).then(answer => {
+    switch (answer.empInitQ) {
+      case "view": empViewHub();
+        break;
+      case "add": addEmpFunc();
+        break;
+      case "update": empUpdateHub();
+        break;
+      case "remove": removeEmpFunc();
+        break;
+      case "back": runEmployeeEdit();
+        break;
+    }
+  })
 }
 // this switch statement handles which function is called based on what employees the user wishes to view
 const empViewHub = () => {
   inquirer.prompt(empViewQ).then(answer => {
-    switch(answer.empView) {
+    switch (answer.empView) {
       case "all": viewAllFunc();
-      break;
+        break;
       case "depot": viewDepotFunc();
-      break;
+        break;
       case "role": viewRoleFunc();
-      break;
+        break;
       case "mang": viewManagerFunc();
-      break;
+        break;
       case "return": empHubFunc();
     }
   })
@@ -154,13 +154,13 @@ const empViewHub = () => {
 // this switch statement hangles which function is called based on what aspect of the employee is updated
 const empUpdateHub = () => {
   inquirer.prompt(empUpdateQ).then(answer => {
-    switch(answer.empUpQuest) {
+    switch (answer.empUpQuest) {
       case "role": empRoleFunc();
-      break;
+        break;
       case "mang": empManFunc();
-      break;
+        break;
       case "return": empHubFunc();
-      break;
+        break;
     }
   })
 }
@@ -169,30 +169,30 @@ const roleHubFunc = () => {
   inquirer.prompt(roleInit).then(answer => {
     switch (answer.roleInitQ) {
       case "view": roleFunc();
-      break;
+        break;
       case "add": addRoleFunc();
-      break;
+        break;
       case "remove": removeRoleFunc();
-      break;
+        break;
       case "return": runEmployeeEdit();
     }
 
-    }) 
+  })
 }
 // this switch statement directs the user to all of the options for editing/viewing departments
 const depotHubFunc = () => {
   inquirer.prompt(depotInit).then(answer => {
     switch (answer.depotInitQ) {
       case "view": depotsFunc();
-      break;
+        break;
       case "add": addDepotFunc();
-      break;
+        break;
       case "remove": removeDepotFunc();
-      break;
+        break;
       case "budget": budgetFunc();
-      break;
+        break;
       case "return": runEmployeeEdit();
-      break;
+        break;
     }
   })
 }
@@ -288,7 +288,7 @@ const viewManagerFunc = () => {
           console.log("\n" + res.length + " employees found! \n");
           let empArr = []
           res.forEach(emp => empArr.push({ Id: emp.ID, Name: emp.name, Title: emp.title, Salary: emp.salary, Department: emp.department, Manager: emp.manager }))
-         
+
           console.table(empArr);
           console.log("\n")
           runEmployeeEdit();
@@ -334,22 +334,17 @@ const viewRoleFunc = () => {
 };
 // this function first queries the database for information about all employees. It then asks for employee information and the department they are joining. Based on their department choice, the user is then asked to select roles and managers from a tailored list. It takes all of this information and inserts the employee information into the database.
 const addEmpFunc = () => {
-  let query = `SELECT e.id AS ID, 
-  concat(e.first_name, " ", e.last_name) AS name,
-  employee_role.id AS role_id,
-  title,
-  salary, 
-  department_name AS department,
-  is_manager,
-  concat(m.first_name, " ", m.last_name) AS manager
-  FROM employee e
-  JOIN employee_role ON e.role_id = employee_role.id
-  JOIN department ON employee_role.department_id = department.id
-  LEFT JOIN employee m ON e.manager_id = m.id`
+  const query = `SELECT title, department_name, is_manager FROM employee_role
+  JOIN department ON employee_role.department_id = department.id`
 
   connection.query(query, (err, res) => {
+
     let depotChoice = [];
-    res.forEach(depot => (depotChoice.includes(depot.department)) ? false : depotChoice.push(depot.department))
+    res.forEach(depot => (depotChoice.includes(depot.department_name)) ? false : depotChoice.push(depot.department))
+    if (!depotChoice[0]) {
+      console.warn("\n You add a department and employee role before adding any employees! \n");
+      return runEmployeeEdit();
+    }
     inquirer.prompt([{
       name: "addFirstName",
       type: "input",
@@ -366,46 +361,64 @@ const addEmpFunc = () => {
       message: "What department is the employee's joining?",
       choices: depotChoice,
     }]).then(ans => {
-      let managerList = [];
+
       let roleList = [];
-      res.forEach(mang => (mang.is_manager && mang.department === ans.depotChoice) ? managerList.push(mang.name) : false)
-      res.forEach(role => (!roleList.includes(role.title) && role.department === ans.depotChoice) ? roleList.push(role.title) : false)
+      res.forEach(role => (role.department_name === ans.depotChoice) ? roleList.push(role.title) : false)
+      if (!roleList[0]) {
+        console.warn("You must create roles before adding employees!");
+        return runEmployeeEdit();
+      }
       inquirer.prompt(
         {
           name: "roleChoice",
           type: "list",
           message: "What position will this employee fulfill?",
           choices: roleList,
-        }).then(answer => {
-          let roleMang = res.filter(role => role.title === answer.roleChoice);
-          if (!roleMang[0].is_manager) {
-            inquirer.prompt(
-              {
-                name: "managerChoice",
-                type: "list",
-                message: "Who is the employee's manager?",
-                choices: managerList,
-              }
-            ).then(response => {
-              let titleChoice = res.filter(title => title.title === answer.roleChoice);
-              let mangChoice = res.filter(mang => mang.name === response.managerChoice);
-              let query2 = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
-          VALUES (?, ?, ?, ?)`
-              connection.query(query2, [ans.addFirstName, ans.addLastName, titleChoice[0].role_id, mangChoice[0].ID], (err, res2) => {
-                console.log("Employee added! \n")
-                runEmployeeEdit();
-              })
+        }).then(ans2 => {
+          let roleMang = res.filter(role => role.title === ans2.roleChoice);
 
+          if (!roleMang[0].is_manager) {
+            const query2 = `SELECT e.id AS ID, concat(e.first_name, " ", e.last_name) AS name, is_manager, department_name FROM employee e 
+          JOIN employee_role ON e.role_id = employee_role.id
+          JOIN department ON employee_role.department_id = department.id
+          WHERE is_manager = true and department_name = ?`
+            connection.query(query2, ans.depotChoice, (err, res2) => {
+              const managerList = [];
+              res2.forEach(mang => managerList.push(mang.name));
+              if (!managerList) {
+                console.warn("You must add a managerial role to this department before adding this employee!");
+                return runEmployeeEdit();
+              }
+              inquirer.prompt(
+                {
+                  name: "managerChoice",
+                  type: "list",
+                  message: "Who is the employee's manager?",
+                  choices: managerList,
+                }
+              ).then(ans3 => {
+                const query3 = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                VALUES (?, ?, ?, ?)`
+                let titleChoice = res.filter(title => title.title === ans2.roleChoice)
+                let mangChoice = res2.filter(mang => mang.name === ans3.managerChoice)
+                connection.query(query3, [ans.addFirstName, ans.addLastName, titleChoice[0].role_id, mangChoice[0].ID], (err, res3) => {
+                  console.log("Employee added! \n")
+                  runEmployeeEdit();
+                })
+              })
             })
           } else {
-            let titleChoice = res.filter(title => title.title === answer.roleChoice);
-            let query2 = `INSERT INTO employee (first_name, last_name, role_id)
-        VALUES (?, ?, ?)`
-            connection.query(query2, [ans.addFirstName, ans.addLastName, titleChoice[0].role_id], (err, res2) => {
-              console.log("Manager added! \n")
+            const query3 = `INSERT INTO employee (first_name, last_name, role_id)
+                VALUES (?, ?, ?)`
+            let titleChoice = res.filter(title => title.title === ans2.roleChoice)
+            connection.query(query3, [ans.addFirstName, ans.addLastName, titleChoice[0].role_id], (err, res3) => {
+              console.log("Employee added \n")
               runEmployeeEdit();
             })
+
           }
+
+
         })
 
 
@@ -426,8 +439,11 @@ const empRoleFunc = () => {
   LEFT JOIN employee m ON e.manager_id = m.id`
   connection.query(query, (err, res) => {
     let roleArr = []
+    if (!res[0]) {
+      console.warn("\n No employees found. Please add an employee before updating roles.")
+      return runEmployeeEdit();
+    }
     res.forEach(role => (roleArr.includes(role.title)) ? false : roleArr.push(role.title))
-
     let empList = res.map(e => e.name);
 
     inquirer.prompt([
@@ -470,7 +486,10 @@ const empManFunc = () => {
   FROM employee e
   JOIN employee_role ON e.role_id = employee_role.id
   LEFT JOIN employee m ON e.manager_id = m.id`;
-
+  if (!res[0]) {
+    console.warn("\n No employees found. Please add an employee before updating information. \n");
+    return runEmployeeEdit();
+  }
   connection.query(query, (err, res) => {
     const mangList = []
     res.forEach(mang => (mang.is_manager) ? mangList.push(mang.name) : false);
@@ -509,6 +528,9 @@ const empManFunc = () => {
 const removeEmpFunc = () => {
   const query = `SELECT id, concat(e.first_name, " ", e.last_name) AS name
   FROM employee e`
+  if (!res[0]) {
+    console.warn("\n No employees found! \n")
+  }
   connection.query(query, (err, res) => {
     const empList = []
     res.forEach(emp => empList.push(emp.name));
@@ -563,6 +585,10 @@ const addRoleFunc = () => {
   connection.query(query, (err, res) => {
     const depotList = []
     res.forEach(depot => depotList.push(depot.department_name));
+    if (!depotList[0]) {
+      console.warn("\n You must first create departments before adding employee roles! \n");
+      return runEmployeeEdit();
+    }
     inquirer.prompt([
       {
         name: "roleTitle",
@@ -609,6 +635,10 @@ const removeRoleFunc = () => {
   connection.query(query, (err, res) => {
     const roleList = [];
     res.forEach(role => roleList.push(role.title));
+    if (!roleList[0]) {
+      console.warn("\n No roles found! \n");
+      return runEmployeeEdit();
+    }
     inquirer.prompt([
       {
         name: "roleRemove",
@@ -709,9 +739,13 @@ const budgetFunc = () => {
   JOIN department ON employee_role.department_id = department.id`
 
   connection.query(query, (err, res) => {
+    
     let depotArr = []
     res.forEach(depot => depotArr.includes(depot.department) ? false : depotArr.push(depot.department));
-
+    if (!res[0] || !depotArr[0]) {
+      console.log("\n No information found. Please either add employees or roles before checking the budget. \n");
+      return runEmployeeEdit()
+    }
     inquirer.prompt({
       name: "depotChoice",
       type: "list",
